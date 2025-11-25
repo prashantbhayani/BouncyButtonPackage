@@ -40,12 +40,14 @@ public struct BouncyButton: View {
         pendingButtonAction?.cancel()
         
         let currentItem = DispatchWorkItem {
-            self.isPressed = false
-            self.action()
+            DispatchQueue.main.async {
+                self.isPressed = false
+                self.action()
+            }
         }
         
-        pendingButtonAction = currentItem
         
+        pendingButtonAction = currentItem
          DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: currentItem)
     }
 }
