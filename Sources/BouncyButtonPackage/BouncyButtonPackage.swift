@@ -8,6 +8,7 @@ public struct BouncyButton: View {
     private let action: () -> Void
     
     @State private var isPressed = false
+    @State private var pendingButtonAction: DispatchWorkItem?
     
     public init(title: String, action: @escaping () -> Void) {
         self.title = title
@@ -36,9 +37,15 @@ public struct BouncyButton: View {
     
     private func bounce() {
         isPressed = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-            isPressed = false
-            action()
+        pendingButtonAction?.cancel()
+        
+        let currentItem = DispatchWorkItem {
+            self.isPressed = false
+            self.action()
         }
+        
+        pendingButtonAction = currentItem
+        
+         DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: currentItem)
     }
 }
